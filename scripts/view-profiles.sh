@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Get the directory where the script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Get the project root (parent of scripts/)
+PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+
+cd "$PROJECT_ROOT"
+
 echo "🚀 Starting Profile Viewer..."
 echo ""
 
@@ -8,19 +15,16 @@ echo "📊 Generating fresh profiles..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-# Make profile.sh executable if needed
-chmod +x profile.sh 2>/dev/null
-
 # Run profiling
-if [ -f "profile.sh" ]; then
-    ./profile.sh
+if [ -f "scripts/profile.sh" ]; then
+    ./scripts/profile.sh
     if [ $? -ne 0 ]; then
         echo ""
         echo "❌ Failed to generate profiles"
         exit 1
     fi
 else
-    echo "❌ profile.sh not found!"
+    echo "❌ scripts/profile.sh not found!"
     exit 1
 fi
 
@@ -32,7 +36,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 # Start the server from web directory
-cd ../web
+cd web
 go run serve-profiles.go
 
 # Server will open browser automatically

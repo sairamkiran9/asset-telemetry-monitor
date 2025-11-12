@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Get the directory where the script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Get the project root (parent of scripts/)
+PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+
+cd "$PROJECT_ROOT"
+
 echo "=== Go Performance Profiling ==="
 echo ""
 
@@ -9,24 +16,24 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Create profiles directory
-mkdir -p ../profiles
+mkdir -p profiles
 
 echo -e "${BLUE}1. Running Asset Registry Benchmarks${NC}"
-cd ../services/asset-registry
+cd services/asset-registry
 go test -bench=. -benchmem -cpuprofile=../../profiles/asset-cpu.prof -memprofile=../../profiles/asset-mem.prof
-cd ../..
+cd "$PROJECT_ROOT"
 
 echo ""
 echo -e "${BLUE}2. Running Telemetry Service Benchmarks${NC}"
 cd services/telemetry
 go test -bench=. -benchmem -cpuprofile=../../profiles/telemetry-cpu.prof -memprofile=../../profiles/telemetry-mem.prof
-cd ../..
+cd "$PROJECT_ROOT"
 
 echo ""
 echo -e "${BLUE}3. Running Asset Monitoring Benchmarks${NC}"
 cd services/asset-monitoring
 go test -bench=. -benchmem -cpuprofile=../../profiles/monitoring-cpu.prof -memprofile=../../profiles/monitoring-mem.prof
-cd ../..
+cd "$PROJECT_ROOT"
 
 echo ""
 echo -e "${GREEN}=== Profiling Complete ===${NC}"
