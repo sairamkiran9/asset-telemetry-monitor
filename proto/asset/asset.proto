@@ -1,0 +1,54 @@
+  syntax = "proto3";
+  
+  package asset;
+  
+  option go_package = "github.com/sairamkiran9/asset-telemetry-monitor/gen/go/asset";
+  
+  import "google/protobuf/timestamp.proto";
+  
+  service AssetRegistry {
+    rpc RegisterAsset(RegisterAssetRequest) returns (RegisterAssetResponse);
+    rpc GetAsset(GetAssetRequest) returns (GetAssetResponse);
+    rpc ListAssets(ListAssetsRequest) returns (ListAssetsResponse);
+  }
+  
+  message Asset {
+    string id = 1;
+    string name = 2;
+    string type = 3;
+    string description = 4;
+    google.protobuf.Timestamp created_at = 5;
+    map<string, string> metadata = 6;
+  }
+  
+  message RegisterAssetRequest {
+    string name = 1;
+    string type = 2;
+    string description = 3;
+    map<string, string> metadata = 4;
+  }
+  
+  message RegisterAssetResponse {
+    Asset asset = 1;
+    bool success = 2;
+    string message = 3;
+  }
+  
+  message GetAssetRequest {
+    string id = 1;
+  }
+  
+  message GetAssetResponse {
+    Asset asset = 1;
+    bool found = 2;
+  }
+  
+  message ListAssetsRequest {
+    int32 page_size = 1;
+    string page_token = 2;
+  }
+  
+  message ListAssetsResponse {
+    repeated Asset assets = 1;
+    string next_page_token = 2;
+  }

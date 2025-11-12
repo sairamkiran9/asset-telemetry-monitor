@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  asset-registry:
+    build:
+      context: .
+      dockerfile: ./services/asset-registry/Dockerfile
+    container_name: asset-registry
+    ports:
+      - "50051:50051"
+    networks:
+      - grpc-network
+    restart: unless-stopped
+
+  telemetry:
+    build:
+      context: .
+      dockerfile: ./services/telemetry/Dockerfile
+    container_name: telemetry
+    ports:
+      - "50052:50052"
+    networks:
+      - grpc-network
+    depends_on:
+      - asset-registry
+    restart: unless-stopped
+
+  monitoring:
+    build:
+      context: .
+      dockerfile: ./services/monitoring/Dockerfile
+    container_name: monitoring
+    ports:
+      - "50053:50053"
+    networks:
+      - grpc-network
+    depends_on:
+      - asset-registry
+      - telemetry
+    restart: unless-stopped
+
+networks:
+  grpc-network:
+    driver: bridge

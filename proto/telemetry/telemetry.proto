@@ -1,0 +1,46 @@
+  syntax = "proto3";
+  
+  package telemetry;
+  
+  option go_package = "github.com/sairamkiran9/asset-telemetry-monitor/gen/go/telemetry";
+  
+  import "google/protobuf/timestamp.proto";
+  
+  service TelemetryService {
+    rpc SubmitTelemetry(SubmitTelemetryRequest) returns (SubmitTelemetryResponse);
+    rpc GetTelemetryData(GetTelemetryDataRequest) returns (GetTelemetryDataResponse);
+  }
+  
+  message TelemetryData {
+    string id = 1;
+    string asset_id = 2;
+    string metric_name = 3;
+    double value = 4;
+    string unit = 5;
+    google.protobuf.Timestamp timestamp = 6;
+    map<string, string> tags = 7;
+  }
+  
+  message SubmitTelemetryRequest {
+    string asset_id = 1;
+    string metric_name = 2;
+    double value = 3;
+    string unit = 4;
+    map<string, string> tags = 5;
+  }
+  
+  message SubmitTelemetryResponse {
+    TelemetryData data = 1;
+    bool success = 2;
+    string message = 3;
+  }
+  
+  message GetTelemetryDataRequest {
+    string asset_id = 1;
+    google.protobuf.Timestamp start_time = 2;
+    google.protobuf.Timestamp end_time = 3;
+  }
+  
+  message GetTelemetryDataResponse {
+    repeated TelemetryData data = 1;
+  }
