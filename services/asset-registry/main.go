@@ -10,6 +10,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -102,6 +103,7 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	pb.RegisterAssetRegistryServer(grpcServer, newServer())
+	reflection.Register(grpcServer)
 
 	log.Println("Asset Registry Service listening on :50051")
 	if err := grpcServer.Serve(lis); err != nil {

@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -109,6 +110,7 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	pb.RegisterTelemetryServiceServer(grpcServer, newServer(assetClient))
+	reflection.Register(grpcServer)
 
 	log.Println("Telemetry Service listening on :50052")
 	if err := grpcServer.Serve(lis); err != nil {
