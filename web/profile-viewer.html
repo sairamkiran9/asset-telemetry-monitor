@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,7 +33,7 @@
         .header h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .header p {
@@ -44,7 +45,7 @@
             background: white;
             border-radius: 12px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             margin-bottom: 30px;
         }
 
@@ -259,6 +260,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -268,7 +270,7 @@
 
         <div class="card">
             <h2 style="margin-bottom: 20px; color: #333;">Select Profile to Analyze</h2>
-            
+
             <div class="selector-grid">
                 <div class="selector-group">
                     <label for="service">Service</label>
@@ -317,54 +319,60 @@
         <div class="card">
             <h2 style="margin-bottom: 20px; color: #333;">Quick Access</h2>
             <div class="profile-grid">
-                <div class="profile-card" onclick="openQuickProfile('asset-registry', 'cpu')">
+                <div class="profile-card" data-service="asset" data-type="cpu"
+                    onclick="openQuickProfile('asset-registry', 'cpu')">
                     <h3>📦 Asset Registry</h3>
                     <p>CPU Profile</p>
                 </div>
-                <div class="profile-card" onclick="openQuickProfile('asset-registry', 'mem')">
+                <div class="profile-card" data-service="asset" data-type="mem"
+                    onclick="openQuickProfile('asset-registry', 'mem')">
                     <h3>📦 Asset Registry</h3>
                     <p>Memory Profile</p>
                 </div>
-                <div class="profile-card" onclick="openQuickProfile('telemetry', 'cpu')">
+                <div class="profile-card" data-service="telemetry" data-type="cpu"
+                    onclick="openQuickProfile('telemetry', 'cpu')">
                     <h3>📡 Telemetry</h3>
                     <p>CPU Profile</p>
                 </div>
-                <div class="profile-card" onclick="openQuickProfile('telemetry', 'mem')">
+                <div class="profile-card" data-service="telemetry" data-type="mem"
+                    onclick="openQuickProfile('telemetry', 'mem')">
                     <h3>📡 Telemetry</h3>
                     <p>Memory Profile</p>
                 </div>
-                <div class="profile-card" onclick="openQuickProfile('monitoring', 'cpu')">
+                <div class="profile-card" data-service="monitoring" data-type="cpu"
+                    onclick="openQuickProfile('monitoring', 'cpu')">
                     <h3>📊 Monitoring</h3>
                     <p>CPU Profile</p>
                 </div>
-                <div class="profile-card" onclick="openQuickProfile('monitoring', 'mem')">
-                    <h3>📊 Monitoring</h3>
-                    <p>Memory Profile</p>
-                </div>
+                <div class="profile-card" data-service="monitoring" data-type="mem"
+                    onclick="openQuickProfile('monitoring', 'mem')"></div>
+                <h3>📊 Monitoring</h3>
+                <p>Memory Profile</p>
             </div>
         </div>
+    </div>
 
-        <div class="card">
-            <h2 style="margin-bottom: 20px; color: #333;">Documentation</h2>
-            <div class="quick-links">
-                <a href="PROFILING.md" class="quick-link" target="_blank">📖 Profiling Guide</a>
-                <a href="PROFILING_TOOLS.md" class="quick-link" target="_blank">🔧 Tools Integration</a>
-                <a href="README.md" class="quick-link" target="_blank">📚 README</a>
-            </div>
+    <div class="card">
+        <h2 style="margin-bottom: 20px; color: #333;">Documentation</h2>
+        <div class="quick-links">
+            <a href="PROFILING.md" class="quick-link" target="_blank">📖 Profiling Guide</a>
+            <a href="PROFILING_TOOLS.md" class="quick-link" target="_blank">🔧 Tools Integration</a>
+            <a href="README.md" class="quick-link" target="_blank">📚 README</a>
         </div>
+    </div>
 
-        <div class="card">
-            <div class="info-box">
-                <h3>How to Use</h3>
-                <ul>
-                    <li>First, generate profiles by running: <code>./profile.sh</code> or <code>profile.bat</code></li>
-                    <li>Select a service and profile type from the dropdowns above</li>
-                    <li>Click "Open Profile" to launch pprof web interface</li>
-                    <li>Or use Quick Access cards for instant access</li>
-                    <li>The profile will open at <code>http://localhost:8080</code></li>
-                </ul>
-            </div>
+    <div class="card">
+        <div class="info-box">
+            <h3>How to Use</h3>
+            <ul>
+                <li>First, generate profiles by running: <code>./profile.sh</code> or <code>profile.bat</code></li>
+                <li>Select a service and profile type from the dropdowns above</li>
+                <li>Click "Open Profile" to launch pprof web interface</li>
+                <li>Or use Quick Access cards for instant access</li>
+                <li>The profile will open at <code>http://localhost:8080</code></li>
+            </ul>
         </div>
+    </div>
     </div>
 
     <script>
@@ -372,32 +380,55 @@
             const service = document.getElementById('service').value;
             const profileType = document.getElementById('profileType').value;
             const view = document.getElementById('view').value;
-            
+
             const profileFile = `profiles/${service}-${profileType}.prof`;
             let command = `go tool pprof -http=:8080`;
-            
+
             if (view) {
                 command += ` -${view}`;
             }
-            
+
             command += ` ${profileFile}`;
             return command;
         }
 
         function openProfile() {
-            const command = getCommand();
             const service = document.getElementById('service').value;
             const profileType = document.getElementById('profileType').value;
-            
+            const view = document.getElementById('view').value;
+
             showStatus(`Opening ${service} ${profileType} profile...`, 'info');
-            
-            // Show instructions
-            setTimeout(() => {
-                showStatus(
-                    `Run this command in your terminal:\n${command}\n\nThen open: http://localhost:8080`,
-                    'success'
-                );
-            }, 500);
+
+            // Call API to open profile
+            const params = new URLSearchParams({
+                service: service,
+                type: profileType,
+                view: view
+            });
+
+            fetch(`/api/open-profile?${params}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showStatus(
+                            `✅ Profile opened successfully!\n\nView at: http://localhost:8080\n\nThe profile viewer will open in a new window.`,
+                            'success'
+                        );
+                        // Open in new window after a short delay
+                        setTimeout(() => {
+                            window.open('http://localhost:8080', '_blank');
+                        }, 1000);
+                    } else {
+                        showStatus(`❌ Error: ${data.message}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    const command = getCommand();
+                    showStatus(
+                        `⚠️ Could not auto-open profile.\n\nRun this command manually:\n${command}\n\nThen open: http://localhost:8080`,
+                        'error'
+                    );
+                });
         }
 
         function openQuickProfile(service, type) {
@@ -408,7 +439,7 @@
 
         function copyCommand() {
             const command = getCommand();
-            
+
             // Create temporary textarea
             const textarea = document.createElement('textarea');
             textarea.value = command;
@@ -416,14 +447,14 @@
             textarea.style.opacity = '0';
             document.body.appendChild(textarea);
             textarea.select();
-            
+
             try {
                 document.execCommand('copy');
                 showStatus('Command copied to clipboard!', 'success');
             } catch (err) {
                 showStatus('Failed to copy. Command: ' + command, 'error');
             }
-            
+
             document.body.removeChild(textarea);
         }
 
@@ -436,7 +467,7 @@
 
         function refreshProfiles() {
             showStatus('Refreshing profiles... This may take a minute.', 'info');
-            
+
             fetch('/api/refresh-profiles')
                 .then(response => response.json())
                 .then(data => {
@@ -456,18 +487,49 @@
             fetch('/api/profiles')
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Available profiles:', data.profiles);
+                    const profiles = data.profiles || [];
+                    console.log('Available profiles:', profiles);
+
+                    if (profiles.length === 0) {
+                        showStatus('⚠️ No profiles found. Click "Refresh Profiles" to generate them.', 'info');
+                    } else {
+                        showStatus(`✅ ${profiles.length} profiles available! Select options and click "Open Profile".`, 'success');
+                    }
+
+                    // Update UI to show available profiles
+                    updateProfileStatus(profiles);
                 })
                 .catch(error => {
                     console.error('Failed to load profiles:', error);
+                    showStatus('⚠️ Could not load profiles. Make sure the server is running.', 'error');
                 });
+        }
+
+        function updateProfileStatus(profiles) {
+            // Check which profiles are available and update quick access cards
+            const cards = document.querySelectorAll('.profile-card');
+            cards.forEach(card => {
+                const service = card.getAttribute('data-service');
+                const type = card.getAttribute('data-type');
+                const profileFile = `${service}-${type}.prof`;
+
+                if (profiles.includes(profileFile)) {
+                    card.style.opacity = '1';
+                    card.style.cursor = 'pointer';
+                } else {
+                    card.style.opacity = '0.5';
+                    card.style.cursor = 'not-allowed';
+                    card.title = 'Profile not available - click Refresh Profiles';
+                }
+            });
         }
 
         // Show welcome message
         window.addEventListener('load', () => {
-            showStatus('Profiles are ready! Select a profile and click "Open Profile" to get started!', 'info');
+            showStatus('Loading profiles...', 'info');
             loadAvailableProfiles();
         });
     </script>
 </body>
+
 </html>

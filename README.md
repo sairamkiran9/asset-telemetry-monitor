@@ -5,20 +5,32 @@ A simple microservices architecture demonstrating gRPC communication patterns us
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────┐
-│  Monitoring Service │ :50053
-│   (Health Checks)   │
-└──────────┬──────────┘
-           │
-    ┌──────┴──────┐
-    │             │
-    ▼             ▼
-┌─────────┐   ┌──────────────┐
-│  Asset  │   │  Telemetry   │ :50052
-│Registry │◄──┤   Service    │
-│ :50051  │   │ (Validation) │
-└─────────┘   └──────────────┘
+                    ┌─────────────────────┐
+                    │  Monitoring Service │ :50053
+                    │   (Health Checks)   │
+                    └──────────┬──────────┘
+                               │
+                    ┌──────────┴──────────┐
+                    │                     │
+                    ▼                     ▼
+        ┌─────────────────┐   ┌──────────────────┐
+        │  Asset Registry │   │   Telemetry      │ :50052
+        │     :50051      │◄──┤    Service       │
+        └────────┬────────┘   │  (Validation)    │
+                 │            └──────────────────┘
+                 │
+                 ▼
+        ┌─────────────────┐
+        │ Asset Monitoring│ :50054
+        │  (Real-time     │
+        │   Streaming)    │
+        └─────────────────┘
 ```
+
+**Service Dependencies:**
+- Telemetry → Asset Registry (validates assets)
+- Monitoring → Asset Registry + Telemetry (health checks)
+- Asset Monitoring → Asset Registry (validates assets for streaming)
 
 ## 📦 Services
 
@@ -134,6 +146,9 @@ Features:
 
 # Interactive menu
 ./scripts/analyze-profile.sh
+
+# Complete profiling
+./scripts/view-profile.sh
 
 # Direct pprof
 go tool pprof -http=:8080 profiles/asset-cpu.prof

@@ -31,11 +31,13 @@ func main() {
 			return
 		}
 
-		profileFile := filepath.Join("profiles", fmt.Sprintf("%s-%s.prof", service, profileType))
+		// Profile file is in parent directory's profiles folder
+		profileFile := filepath.Join("..", "profiles", fmt.Sprintf("%s-%s.prof", service, profileType))
 
 		// Check if profile exists
 		if _, err := os.Stat(profileFile); os.IsNotExist(err) {
-			http.Error(w, fmt.Sprintf("Profile not found: %s", profileFile), http.StatusNotFound)
+			w.Header().Set("Content-Type", "application/json")
+			fmt.Fprintf(w, `{"status":"error","message":"Profile not found: %s. Run ./scripts/profile.sh to generate profiles."}`, profileFile)
 			return
 		}
 
@@ -61,8 +63,10 @@ func main() {
 	http.HandleFunc("/api/profiles", func(w http.ResponseWriter, r *http.Request) {
 		profiles := []string{}
 
-		if _, err := os.Stat("profiles"); !os.IsNotExist(err) {
-			files, err := filepath.Glob("profiles/*.prof")
+		// Profiles are in parent directory
+		profilesDir := filepath.Join("..", "profiles")
+		if _, err := os.Stat(profilesDir); !os.IsNotExist(err) {
+			files, err := filepath.Glob(filepath.Join(profilesDir, "*.prof"))
 			if err == nil {
 				for _, file := range files {
 					profiles = append(profiles, filepath.Base(file))
