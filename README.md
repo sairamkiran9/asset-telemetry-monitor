@@ -44,6 +44,17 @@ Provides health checks and metrics collection across all services.
 - `HealthCheck` - Check health status of services
 - `GetMetrics` - Stream metrics data (server streaming)
 
+### Asset Monitoring Service (Port 50054)
+Real-time monitoring and streaming of asset status with type-specific readings.
+
+**RPCs:**
+- `StreamAssetStatus` - Stream real-time asset updates (server streaming)
+
+**Supported Asset Types:**
+- Electric (voltage, current, power, frequency, power factor)
+- ChillWater (supply temp, return temp, pressure, flow rate)
+- Steam (pressure, temperature, quality, enthalpy)
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -75,26 +86,62 @@ docker-compose logs -f
 docker ps
 ```
 
-You should see three containers running:
+You should see four containers running:
 - `asset-registry` on port 50051
 - `telemetry` on port 50052
 - `monitoring` on port 50053
+- `asset-monitoring` on port 50054
 
 ## 🧪 Testing
 
 ### Run Unit Tests
 ```bash
-# Linux/Mac
-./run-tests.sh
+./scripts/run-tests.sh
 
-# Windows
-run-tests.bat
-
-# Or manually
-go test ./services/asset-registry -v
-go test ./services/telemetry -v
-go test ./services/monitoring -v
+# Or manually for specific service
+cd services/asset-registry
+go test -v
 ```
+
+### Run Benchmarks
+```bash
+./scripts/benchmark.sh
+
+# Or run for specific service
+cd services/asset-registry
+go test -bench=. -benchmem -benchtime=3s
+```
+
+### Performance Profiling
+
+**🎨 Web UI (Recommended)**
+```bash
+# Automatically generates profiles and launches dashboard
+./scripts/view-profiles.sh
+```
+Opens at: http://localhost:3000/profile-viewer.html
+
+Features:
+- 🔄 Auto-generates fresh profiles on startup
+- 🎯 Dropdown selectors for easy navigation
+- 🚀 Quick access cards for instant viewing
+- 🔄 Refresh button to regenerate profiles
+
+**📊 Command Line**
+```bash
+# Generate profiles
+./scripts/profile.sh
+
+# Interactive menu
+./scripts/analyze-profile.sh
+
+# Direct pprof
+go tool pprof -http=:8080 profiles/asset-cpu.prof
+```
+
+**Profiling Guides:**
+- [docs/PROFILING.md](docs/PROFILING.md) - Detailed profiling guide
+- [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) - Project organization
 
 ### Test with grpcurl
 
@@ -128,76 +175,51 @@ grpcurl -plaintext -d '{
 
 ```
 asset-telemetry-monitor/
-├── proto/                      # Protocol Buffer definitions
-│   ├── asset/
-│   ├── telemetry/
-│   └── monitoring/
-├── gen/go/                     # Generated Go code from proto
-│   └── proto/
-├── services/                   # Service implementations
-│   ├── asset-registry/
-│   │   ├── main.go
-│   │   ├── main_test.go
-│   │   └── Dockerfile
-│   ├── telemetry/
-│   │   ├── main.go
-│   │   ├── main_test.go
-│   │   └── Dockerfile
-│   └── monitoring/
-│       ├── main.go
-│       ├── main_test.go
-│       └── Dockerfile
-├── docker-compose.yml          # Docker orchestration
-├── go.mod                      # Go module definition
-└── README.md
+├── scripts/        # Utility scripts
+├── web/           # Profile viewer UI
+├── docs/          # Documentation
+├── services/      # Microservices (4 services)
+├── proto/         # Protocol Buffers
+└── profiles/      # Performance profiles
 ```
+
+See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for complete details.
 
 ## 🛠️ Development
 
-### Generate Proto Code
-```bash
-protoc --go_out=gen/go --go_opt=paths=source_relative \
-       --go-grpc_out=gen/go --go-grpc_opt=paths=source_relative \
-       proto/asset/asset.proto
+See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for:
+- Generating proto code
+- Adding new services
+- Project maintenance
+- File naming conventions
 
-protoc --go_out=gen/go --go_opt=paths=source_relative \
-       --go-grpc_out=gen/go --go-grpc_opt=paths=source_relative \
-       proto/telemetry/telemetry.proto
+## ✨ Key Features
 
-protoc --go_out=gen/go --go_opt=paths=source_relative \
-       --go-grpc_out=gen/go --go-grpc_opt=paths=source_relative \
-       proto/monitoring/monitoring.proto
-```
+- 🚀 **gRPC Communication** - Efficient binary protocol with type-safe APIs
+- 🔄 **Real-time Streaming** - Server-side streaming for live asset monitoring
+- 🏥 **Health Monitoring** - Built-in health checks and metrics
+- 🧪 **Comprehensive Testing** - Unit tests and benchmarks with >80% coverage
+- 📊 **Performance Profiling** - CPU & memory profiling with web UI
+- 🐳 **Docker Ready** - Multi-stage builds with Alpine Linux
+- 🔍 **Reflection API** - Easy testing with grpcurl
 
-### Update Dependencies
-```bash
-go mod tidy
-```
+## 📊 Performance
 
-### Stop Services
-```bash
-docker-compose down
-```
+Benchmark results show excellent performance:
 
-## 🔑 Key Features
+| Service | Operation | Throughput | Latency | Memory |
+|---------|-----------|------------|---------|--------|
+| Asset Registry | RegisterAsset | ~40K ops/sec | ~25µs | 1KB/op |
+| Telemetry | SubmitTelemetry | ~30K ops/sec | ~33µs | 2KB/op |
+| Asset Monitoring | GenerateUpdate | ~500K ops/sec | ~2µs | 1B/op |
+| Asset Monitoring | BroadcastUpdate | ~1.8M ops/sec | ~0.5µs | 232B/op |
 
-- **gRPC Communication** - Efficient binary protocol with type-safe APIs
-- **Service Discovery** - Docker networking enables service-to-service communication
-- **Health Monitoring** - Built-in health checks and metrics
-- **Reflection API** - Enabled for easy testing with grpcurl
-- **Unit Tests** - Comprehensive test coverage with mock clients
-- **Multi-stage Builds** - Optimized Docker images using Alpine Linux
+*Run `./benchmark.sh` to see results on your system*
 
-## 📚 Learning Resources
+## 📚 Documentation
 
-This project demonstrates:
-- Protocol Buffer definitions and code generation
-- gRPC server and client implementation
-- Inter-service communication patterns
-- Docker containerization and networking
-- Health check patterns
-- Server streaming RPCs
-- Unit testing with mocks
+- **[docs/PROFILING.md](docs/PROFILING.md)** - Performance profiling guide
+- **[docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md)** - Detailed project layout
 
 ## 🤝 Contributing
 

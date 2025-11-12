@@ -6,7 +6,7 @@ echo ""
 # Asset Registry
 echo "📦 Asset Registry Service"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-cd services/asset-registry
+cd ../services/asset-registry
 go test -bench=. -benchmem -benchtime=3s
 cd ../..
 echo ""

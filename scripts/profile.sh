@@ -9,10 +9,10 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Create profiles directory
-mkdir -p profiles
+mkdir -p ../profiles
 
 echo -e "${BLUE}1. Running Asset Registry Benchmarks${NC}"
-cd services/asset-registry
+cd ../services/asset-registry
 go test -bench=. -benchmem -cpuprofile=../../profiles/asset-cpu.prof -memprofile=../../profiles/asset-mem.prof
 cd ../..
 
