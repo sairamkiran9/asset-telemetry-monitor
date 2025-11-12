@@ -25,6 +25,30 @@ services:
       - asset-registry
     restart: unless-stopped
 
+  asset-monitoring:
+    build:
+      context: .
+      dockerfile: services/asset-monitoring/Dockerfile
+    container_name: asset-monitoring
+    ports:
+      - "50054:50054"
+    networks:
+      - grpc-network
+    depends_on:
+      - asset-registry
+      - telemetry
+    restart: unless-stopped
+    environment:
+      - ASSET_REGISTRY_ADDR=asset-registry:50051
+      - TELEMETRY_ADDR=telemetry:50052
+      - MONITORING_INTERVAL=1
+      - FANOUT_BUFFER=16
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "50054"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   monitoring:
     build:
       context: .

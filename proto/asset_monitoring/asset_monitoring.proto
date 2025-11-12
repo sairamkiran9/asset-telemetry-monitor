@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package asset_monitoring;
+
+option go_package = "github.com/yourorg/grpc-demo/proto/asset_monitoring";
+
+import "google/protobuf/timestamp.proto";
+
+service AssetMonitoringService {
+  // Stream real-time status updates for an asset
+  rpc StreamAssetStatus(StreamAssetStatusRequest) returns (stream AssetStatusUpdate);
+  
+  // Subscribe to specific reading types
+  rpc SubscribeToReadings(SubscribeRequest) returns (stream ReadingUpdate);
+  
+  // Get current snapshot (unary for quick check)
+  rpc GetCurrentStatus(GetStatusRequest) returns (AssetStatusResponse);
+}
+
+enum AssetStatus {
+  UNKNOWN = 0;
+  ONLINE = 1;
+  OFFLINE = 2;
+  DEGRADED = 3;
+  ERROR = 4;
+}
+
+enum AssetType {
+  ASSET_TYPE_UNKNOWN = 0;
+  ELECTRIC = 1;
+  CHILLWATER = 2;
+  STEAM = 3;
+}
+
+message StreamAssetStatusRequest {
+  string asset_id = 1;
+  int32 update_interval_seconds = 2; // Optional: default 1s
+}
+
+message AssetStatusUpdate {
+  string asset_id = 1;
+  AssetStatus status = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string message = 4;
+  
+  // Type-specific readings
+  oneof readings {
+    ElectricReadings electric = 5;
+    ChillWaterReadings chillwater = 6;
+    SteamReadings steam = 7;
+  }
+}
+
+message ElectricReadings {
+  double voltage = 1;        // Volts
+  double current = 2;        // Amperes
+  double power = 3;          // Kilowatts
+  double frequency = 4;      // Hertz
+  double power_factor = 5;   // 0-1
+}
+
+message ChillWaterReadings {
+  double supply_temp = 1;    // Celsius
+  double return_temp = 2;    // Celsius
+  double pressure = 3;       // Bar
+  double flow_rate = 4;      // Liters/min
+}
+
+message SteamReadings {
+  double pressure = 1;       // Bar
+  double temperature = 2;    // Celsius
+  double quality = 3;        // Percentage
+  double enthalpy = 4;       // kJ/kg
+}
+
+message SubscribeRequest {
+  repeated string asset_ids = 1;
+  AssetType asset_type = 2;
+}
+
+message ReadingUpdate {
+  string asset_id = 1;
+  AssetType asset_type = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  
+  oneof reading {
+    ElectricReadings electric = 4;
+    ChillWaterReadings chillwater = 5;
+    SteamReadings steam = 6;
+  }
+}
+
+message GetStatusRequest {
+  string asset_id = 1;
+}
+
+message AssetStatusResponse {
+  string asset_id = 1;
+  AssetStatus status = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  bool is_monitoring = 4;
+}
